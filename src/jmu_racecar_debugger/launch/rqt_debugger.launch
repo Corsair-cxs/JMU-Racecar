@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<launch>
+<!-- false true -->
+<arg name="use-view_graph_tree"     default="true" />
+    <arg name="namespace-view_graph_tree"     default="view_graph_tree" />
+        <arg name="use-rqt_graph"     default="true" />
+        <arg name="use-rqt_tf_tree"     default="true" />
+
+<arg name="use-set_param"     default="true" />
+    <arg name="namespace-set_param"     default="set_param" />
+        <arg name="use-rqt_reconfigure"     default="false" />
+        <arg name="use-rqt_plot"     default="false" />
+        <arg name="use-rqt_gui"     default="false" />
+
+    <group ns="1">
+        <node if="$(arg use-rqt_plot)" pkg="rqt_plot" name="rqt_plot" type="rqt_plot" output="screen" respawn="true"/>
+    </group>
+
+    <group ns="2">
+        <node if="$(arg use-rqt_plot)" pkg="rqt_plot" name="rqt_plot" type="rqt_plot" output="screen" respawn="true"/>
+    </group>
+
+    <group ns="3">
+        <node if="$(arg use-rqt_plot)" pkg="rqt_plot" name="rqt_plot" type="rqt_plot" output="screen" respawn="true"/>
+    </group>
+
+    <group if="$(arg use-view_graph_tree)" ns="$(arg namespace-view_graph_tree)">
+        <node if="$(arg use-rqt_graph)" pkg="rqt_graph" name="rqt_graph" type="rqt_graph" output="screen"/>
+        <node if="$(arg use-rqt_tf_tree)" pkg="rqt_tf_tree" name="rqt_tf_tree" type="rqt_tf_tree" output="screen"/>
+        <node if="$(arg use-rqt_gui)" pkg="rqt_gui" name="rqt_gui" type="rqt_gui" output="screen" respawn="true"/>
+    </group>	
+
+    <group if="$(arg use-set_param)" ns="$(arg namespace-set_param)">
+        <node if="$(arg use-rqt_reconfigure)" pkg="rqt_reconfigure" name="rqt_reconfigure" type="rqt_reconfigure" output="screen" respawn="true"/>
+        <!-- <node if="$(arg use-rqt_plot)" pkg="rqt_plot" name="rqt_plot" type="rqt_plot" output="screen" respawn="true"/> -->
+        <!-- <node if="$(arg use-rqt_gui)" pkg="rqt_gui" name="rqt_gui" type="rqt_gui" output="screen" respawn="true"/> -->
+    </group>	
+
+    <!-- <node name="model_echo_runway" pkg="jmu_racecar_debugger"
+          type="model_echo_runway.py" launch-prefix="gnome-terminal -e">
+    </node>   -->
+    <!-- <node name="twist_echo" pkg="jmu_racecar_debugger" type="twist_echo.py" launch-prefix="gnome-terminal -e"></node>   -->
+
+
+</launch>

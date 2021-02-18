@@ -1,0 +1,172 @@
+base_local_planner: teb_local_planner/TebLocalPlannerROS
+
+TebLocalPlannerROS:
+
+  odom_topic: racecar_wheel_imu_odometry/odom
+  # odom_topic: odom
+  map_frame: /map
+  
+# TODO
+# GoalTolerance 允许误差
+  # xy_goal_tolerance: 0.2
+  # yaw_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.1  #目标 xy 偏移容忍度，Allowed final euclidean distance to the goal position 目标位置的允许距离误差
+  yaw_goal_tolerance: 0.1 #目标位置的允许角度误差 目标 角度 偏移容忍度， Allowed final orientation error to the goal orientation
+  free_goal_vel: True     #(default False)去除目标速度的约束 允许机器人以最大速度驶向目的地， Allow the robot’s velocity to be nonzero for planning purposes (the robot can arrive at the goal with max speed) 
+     
+# TODO
+# Homotopy Class Planner 同伦法,计算线性与非线性
+
+  enable_homotopy_class_planning: True #激活并行规划（因为一次优化多个轨迹，占用更多的CPU资源
+  enable_multithreading: True #激活多个线程，以便在不同的线程中规划每个轨迹 允许多线程并行处理， Activate multiple threading for planning multiple trajectories in parallel
+  max_number_classes: 8 #允许的线程数， Specify the maximum number of allowed alternative homotopy classes (limits computational effort) default=5
+  selection_cost_hysteresis: 1.0 #轨迹成本 Specify how much trajectory cost must a new candidate have w.r.t. a previously selected trajectory in order to be selected (selection if new_cost < old_cost*factor) 指定一个新的候选者必须要有多少轨迹成本才能被选中（如果新的轨迹成本<旧的轨迹成本*因子，则选择该轨迹） 
+  selection_prefer_initial_plan: 0.95 # default=0.95 Specify a cost reduction in the interval (0,1) for the trajectory in the equivalence class of the initial plan.) 指定初始计划等价类中轨迹的间隔（0,1）中的成本降低。） 
+  selection_obst_cost_scale: 1.045 #障碍物成本 Extra scaling of obstacle cost terms just for selecting the ‘best’ candidate (new_obst_cost: obst_cost*factor) 额外调整障碍成本条款，仅用于选择“最佳”
+  selection_viapoint_cost_scale: 1.0 
+  selection_alternative_time_cost: False #如果为真，时间成本(时间差平方和)被总转移时间(时间差和)所替代。 If true, time cost is replaced by the total transition time.
+  switching_blocking_period: 0.05 #Specify a time duration in seconds that needs to be expired before a switch to new equivalence class is allowed  指定允许切换到新等效类之前失效的持续时间（秒） 
+  simple_exploration: False 
+
+  #TODO
+  roadmap_graph_no_samples: 15 #指定为创建路线图而生成的样本数 Specify the number of samples generated for creating the roadmap graph, if simple_exploration is turend off
+  roadmap_graph_area_width: 5 #指定该区域的宽度 Specify the width of the area in which sampled will be generated between start and goal [m ] (the height equals the start-goal distance) 指定在起点和目标之间生成采样的区域的宽度[m]（高度等于起始目标距离） 
+  roadmap_graph_area_length_scale: 1.0 #The length of the rectangular region is determined by the distance between start and goal. This parameter further scales the distance such that the geometric center remains equal!) 矩形区域的长度由起点和目标之间的距离决定。此参数进一步缩放距离，使几何中心保持相等！） 
+  h_signature_prescaler: 0.3 #（0.2 < value <= 1）缩放用于区分同伦类的内部参数（H-signature）。 #警告：只能减少此参数，如果在局部costmap中遇到太多障碍物的情况，请勿选择极低值，否则无法将障碍物彼此区分开线缩放用于区分同伦类的内部参数（H-signature）。Scale number of obstacle value in order to allow huge number of obstacles. Do not choose it extremly low, otherwise obstacles cannot be distinguished from each other (0.2<H<=1) 缩放障碍物的数量值，以允许大量的障碍物。不要选择极低，否则无法区分障碍物（0.2<H<=1） 
+  h_signature_threshold: 0.1 #如果实部和复部的差都低于规定的阈值，则假定两个h签名相等。Two h-signuteres are assumed to be equal, if both the difference of real parts and complex parts are below the specified threshold
+  obstacle_keypoint_offset: 0.1
+  obstacle_heading_threshold: 0.45 #指定障碍标头和目标标头之间的标量积的值，以便将(障碍)考虑到勘探中 Specify the value of the normalized scalar product between obstacle heading and goal heading in order to take them (obstacles) into account for exploration) 指定障碍物航向和目标航向之间的标准化标量积的值，以便在探索时将它们（障碍物）考虑在内） 
+  viapoints_all_candidates: True #(bool, default: true) 如果为真，则不同拓扑的所有轨迹都附加到这组vio -points上，否则只有共享与初始/全局计划相同拓扑的轨迹与它们连接 If true, all trajectories of different topologies are attached to the set of via-points, otherwise only the trajectory sharing the same one as the initial/global plan is attached (no effect in test_optim_node).
+  delete_detours_backwards: True
+  max_ratio_detours_duration_best_duration: 3.0
+  visualize_hc_graph: True #可视化创建的图形，用于探索不同的轨迹（在rviz中检查标记消息）Visualize the graph that is created for exploring new homotopy classes
+  visualize_with_time_as_z_axis_scale: 0.0 #(double,default=0.0)如果该值大于0，则使用该值缩放的Z轴的时间在3D中可视化轨迹和障碍物。最适用于动态障碍。 If this value is bigger than 0, the trajectory and obstacles are visualized in 3d using the time as the z-axis scaled by this value. Most useful for dynamic obstacles.
+ 
+# TODO
+# Obstacles 障碍物
+  # TODO重要参数
+  min_obstacle_dist: 0.232   # This value must also include our robot's expansion, since footprint_model is set to "line".#  Minimum desired separation from obstacles 与障碍的最小期望距离,注意，teb_local_planner本身不考虑膨胀半径 这个不要设置的过大,不然出现一些奇奇怪怪的错误  line型车模-前部后部扫描半径
+  inflation_dist: 0.82 #障碍物周围缓冲区(应大于 min_obstacle_dist 才能生效) Buffer zone around obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
+  dynamic_obstacle_inflation_dist: 0.65 #动态障碍物的膨胀范围， Buffer zone around predicted locations of dynamic obstacles with non-zero penalty costs (should be larger than min_obstacle_dist in order to take effect)
+  include_dynamic_obstacles: False #是否将动态障碍物预测为速度模型， Specify whether the movement of dynamic obstacles should be predicted by a constant velocity model (this also changes the homotopy class search). If false, all obstacles are considered to be static.
+  include_costmap_obstacles: True #应否考虑到局部costmap的障碍 costmap 中的障碍物是否被直接考虑， Specify whether the obstacles in the costmap should be taken into account directly (this is necessary if no seperate clustering and detection is implemented)这是必要的，如果没有单独的聚类和检测实现。
+  legacy_obstacle_association: True #(bool, default: false) 切换到旧的的策略 是否严格遵循局部规划出来的路径， If true, the old association strategy is used (for each obstacle, find the nearest TEB pose), otherwise the new one (for each teb pose, find only ‘relevant’ obstacles).
+  # TODO
+  obstacle_association_force_inclusion_factor: 8 #2.2 (double, default: 1.5)  n * min_obstacle_dist的半径范围内强制考虑障碍 The non-legacy obstacle association technique tries to connect only relevant obstacles with the discretized trajectory during optimization, all obstacles within a specifed distance are forced to be included (as a multiple of min_obstacle_dist), e.g. choose 2.0 in order to consider obstacles within a radius of 2.0*min_obstacle_dist. 非传统障碍物关联技术试图在优化过程中仅将相关障碍物与离散化轨迹连接起来，强制将指定距离内的所有障碍物包括在内（作为最小障碍物距离的倍数），例如选择2.0，以便考虑半径为2.0*min_obstacle_dist
+  obstacle_association_cutoff_factor: 5.0  #(double, default: 5) 只有在参数legacy为false时才使用此2参数 See obstacle_association_force_inclusion_factor, but beyond a multiple of [value]*min_obstacle_dist all obstacles are ignored during optimization. obstacle_association_force_inclusion_factor is processed first.
+  costmap_obstacles_behind_robot_dist: 0.5 #考虑后面n米内的障碍物 Limit the occupied local costmap obstacles taken into account for planning behind the robot (specify distance in meters)(default:1.5)
+  # obstacle_poses_affected: 30 
+  obstacle_poses_affected: 45 #(int, min:0, default:30,max:200)为了保持距离，每个障碍物位置都与轨道上最近的位置相连。The obstacle position is attached to the closest pose on the trajectory to reduce computational effort, but take a number of neighbors into account as well 为了减少计算量，将障碍物位置附加到轨迹上最近的位姿上，同时也考虑了多个邻居 
+  costmap_converter_plugin: "CostmapToPolygonsDBSConcaveHull"  #定义插件名称，用于将costmap的单元格转换成点/线/多边形。若设置为空字符，则视为禁用转换，将所有点视为点障碍
+  # costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
+  # costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSRANSAC"
+  #costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSMCCH"
+  #costmap_converter_plugin: "" # deactivate plugin
+  costmap_converter_spin_thread: True #如果为true，则costmap转换器将以不同的线程调用其回调队列, default:true
+  costmap_converter_rate: 10 #定义costmap_converter插件处理当前costmap的频率（该值不高于costmap更新率
+  #legacy_obstacle_association (bool, default: false) 切换到旧的的策略
+
+  costmap_converter/CostmapToLinesDBSRANSAC:
+      cluster_max_distance: 0.4
+      cluster_min_pts: 2
+      ransac_inlier_distance: 0.15
+      ransac_min_inliers: 10
+      ransac_no_iterations: 2000
+      ransac_remainig_outliers: 3
+      ransac_convert_outlier_pts: True
+      ransac_filter_remaining_outlier_pts: False
+      convex_hull_min_pt_separation: 0.1
+
+# TODO
+# Optimization最优化
+  no_inner_iterations: 6 #被外循环调用后内循环执行优化次数， Number of solver iterations called in each outerloop iteration
+  no_outer_iterations: 5 #执行的外循环的优化次数， Each outerloop iteration automatically resizes the trajectory and invokes the internal optimizer with no_inner_iterations
+  optimization_activate: True #激活优化， Activate the optimization
+  optimization_verbose: False #打印优化过程详情， Print verbose information(default: False)
+  penalty_epsilon: 0.28 #惩罚/缓冲易普希龙  避障的时候调稍微高一些 对于硬约束近似，在惩罚函数中添加安全范围， Add a small safty margin to penalty functions for hard-constraint approximations
+  # penalty_epsilon: 0.15 #惩罚易普希龙  为硬约束近似的惩罚函数添加一个小的安全范围
+  obstacle_cost_exponent: 4
+  weight_max_vel_x: 2  #最大x速度权重， Optimization weight for satisfying the maximum allowed translational velocity
+  weight_max_vel_y: 2  #最大y速度权重，Optimization weight for satisfying the maximum allowed strafing velocity (in use only for holonomic robots)
+  weight_max_vel_theta: 1  #最大角速度权重， Optimization weight for satisfying the maximum allowed angular velocity
+  weight_acc_lim_x: 1  # 最大x 加速度权重，Optimization weight for satisfying the maximum allowed translational acceleration
+  weight_acc_lim_y: 1  #最大y 加速度权重，Optimization weight for satisfying the maximum allowed strafing acceleration (in use only for holonomic robots)
+  weight_acc_lim_theta: 1.02 #满足最大允许角加速度的优化权重。最大允许角速度权重，Optimization weight for satisfying the maximum allowed angular acceleration
+  weight_kinematics_nh: 1000 # 满足非完整运动学的最优化权重Optimization weight for satisfying the non-holonomic kinematics
+  weight_kinematics_forward_drive: 150 #大幅增加weight_kinematics_forward_drive（>100），禁止规划倒车。如仍规划倒车，说明找不到可行的前向行驶路径。若路径确实存在，可以检查转弯半径、各种footprint是否正确，膨胀层是否合理。 优化过程中，迫使机器人只选择前进方向，差速轮适用，强制机器人仅选择正向（正的平移速度）的优化权重。Optimization weight for forcing the robot to choose only forward directions (positive transl. velocities, only diffdrive robot)
+  weight_kinematics_turning_radius: 1 #优化过程中，车型机器人的最小转弯半径的权重。 Optimization weight for enforcing a minimum turning radius (carlike robots)
+  weight_optimaltime: 1.15 #根据转换/执行时间对轨迹进行收缩的优化权重。大幅提高weight_optimaltime（最优时间权重）。提高至3-5时，车辆在直道上快速加速，并靠近路径边缘沿切线过弯。大幅降低weight_optimaltime，设置较大的inflation_dist，并稍微增加weight_inflation。时间权重降低至0.3以下时，车辆速度明显平稳，不会向最高速度加速。膨胀距离大时将远离障碍物行驶。优化过程中，基于轨迹的时间上的权重， Optimization weight for contracting the trajectory w.r.t transition time
+  weight_shortest_path: 0
+  weight_obstacle: 120 #保持与障碍物的最小距离的优化权重 default: 50.0 优化过程中，和障碍物最小距离的权重，Optimization weight for satisfying a minimum seperation from obstacles
+  # TODO
+  weight_inflation: 0.158 # (double, default: 0.1)  #膨胀半径权重 优化过程中， 膨胀区的权重，Optimization weight for the inflation penalty (should be small)
+  weight_dynamic_obstacle: 10 # not in use yet 优化过程中，和动态障碍物最小距离的权重，Optimization weight for satisfying a minimum seperation from dynamic obstacles
+  weight_dynamic_obstacle_inflation: 0.2 #优化过程中，和动态障碍物膨胀区的权重，Optimization weight for the inflation penalty of dynamic obstacles (should be small)
+  # TODO
+  weight_viapoint: 1 #与前面的 global_plan_viapoint_sep 有关 优化过程中，和全局路径采样点距离的权重， Optimization weight for minimizing the distance to via-points(double, default: 1 mix=0, max=1000)  
+  weight_adapt_factor: 2 #迭代地增加某些权重    Some special weights (currently ‘weight_obstacle’) are repeatedly scaled by this factor in each outer TEB iteration (weight_new: weight_old * factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem. 在每次外部TEB迭代（weight_new:weight_old * factor）中，某些特殊权重（当前为“weight_bounder”）都会被该因子反复缩放；迭代地增加权重而不是设置一个巨大的值a-prior，会导致底层优化问题的更好的数值条件。 
+  alternative_time_cost: False #If true, time cost is replaced by the total transition time.
+
+# TODO
+# Recovery恢复
+  shrink_horizon_backup: True  # (bool, default: true)  允许规划器在自动检测到问题(e.g. infeasibility)的情况下临时缩小horizon（50％） 当规划器检测到系统异常，允许缩小时域规划范围。Allows the planner to shrink the horizon temporary (50%) in case of automatically detected issues.
+  # shrink_horizon_min_duration: 10  # (double, default: 10.0) 指定最低持续时间减少地平线以备不可行轨迹检测 
+  oscillation_recovery: True #尝试检测和解决振荡，Try to detect and resolve oscillations between multiple solutions in the same equivalence class (robot frequently switches between left/right/forward/backwards).
+  # oscillation_omega_eps: 0.1
+  # oscillation_recovery_min_duration: 10
+  # oscillation_filter_duration: 10
+
+# TODO
+# Robot    
+  # max_vel_x: 1.8   #max_vel_x (double, default: 0.4)   
+  max_vel_x: 2.2   #max_vel_x (double, default: 0.4)   最大x前向速度，Maximum translational elocity of the robot
+  max_vel_x_backwards: 0.01 # 0.01 最大x后退速度，Maximum translational velocity of the robot for driving backwards
+  max_vel_theta: 0.7 # 角速度和角加速度约束。正确配置下最小转弯半径应在低速时生效，而角速度限制应作用在车辆高速行驶时。角速度约束可以防止高重心转弯过快翻车，对于低速平稳运行的车辆可以不约束此两项，将二者设为一个足够大的值即可。 与许多参数挂钩 Maximum angular velocity of the robot the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega) max_vel_theta和acc_lim_theta 
+  #相关的参数: 转弯半径,最大速度,车模打角范围,
+  acc_lim_x: 0  #最大x加速度，Maximum translational acceleration of the robot
+  # acc_lim_x: 0.3  #最大x加速度，Maximum translational acceleration of the robot
+  acc_lim_theta: 0  #最大角加速度，角加速度限制可以避免车轮打滑，车辆失控。Maximum angular acceleration of the robot(default=0.5)
+  # ********************** Carlike robot parameters ********************
+  #TODO 需要手动计算
+  min_turning_radius: 0.425        # 车类机器人的最小转弯半径，参照阿克曼特性tan(sita). 最小转弯半径。为避免规划出不可能实现的移动路径，请动手测量实际车辆的转弯半径。此参数事实上约束了舵机的 最大转角 。有些车辆转向性能不佳，前轮实际转过角度小于舵机角度，则应当给指令转角乘上一增益后再控制舵机，否则车辆将总是不能实现设置的最小转弯半径。请注意此项应当与最大角速度配合设置。Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
+  wheelbase: 0.335                # 驱动轴和转向轴之间的距离（仅适用于启用了“Cmd_angle_而不是_rotvel”的Carlike机器人）；对于后轮式机器人，该值可能为负值！Wheelbase of our robotThe distance between the drive shaft and steering axle (only required for a carlike robot with ‘cmd_angle_instead_rotvel’ enabled); The value might be negative for back-wheeled robots!
+  cmd_angle_instead_rotvel: True #  stage simulator takes the angle instead of the rotvel as input (twist message) 将收到的角速度消息转换为 操作上的角度变化。 Substitute the rotational velocity in the commanded velocity message by the corresponding steering angle (check axles_distance) (default:False)
+  # ********************** Omnidirectional *****************************
+  #仅适用于全向轮
+  # max_vel_y: 0.0
+  # acc_lim_y: 0.5
+
+  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
+    type: "line"
+    line_start: [0.1625, 0.0] # for type "line"
+    line_end: [-0.1625, 0.0] # for type "line"
+
+    # radius: 0.2 # for type "circular"
+    # front_offset: 0.2 # for type "two_circles"
+    # front_radius: 0.2 # for type "two_circles"
+    # rear_offset: 0.2 # for type "two_circles"
+    # rear_radius: 0.2 # for type "two_circles"
+    # vertices: [ [0.25, -0.05], [0.18, -0.05], [0.18, -0.18], [-0.19, -0.18], [-0.25, 0], [-0.19, 0.18], [0.18, 0.18], [0.18, 0.05], [0.25, 0.05] ] # for type "polygon"
+
+# TODO
+# Trajectory
+  #min_samples (int, default: 3)  #最小样本数（始终大于2）
+  teb_autosize: True #优化期间允许改变轨迹的时域长度；Enable the automatic resizing of the trajectory during optimization (based on the temporal resolution of the trajectory, recommended) 默认是True
+  # TODO 和move_base controller_frequency有关
+  dt_ref: 0.33  #局部路径规划的解析度 期望的轨迹时间分辨率 这个要调适宜好,这个和期望时间步长紧密相关 Temporal resolution of the planned trajectory (usually it is set to 1the magnitude of the 1/control_rate) min0.01 default0.3 max1.0 controller_frequency =20 
+  dt_hysteresis: 0.033 #允许改变的时域解析度的浮动范围， 一般为 dt_ref 的 10% 左右; Hysteresis that is utilized for automatic resizing depending on the current temporal resolution (dt): usually 10% of dt_ref
+  max_samples: 500
+  global_plan_overwrite_orientation: False #对于车辆的2D规划，可以设置为False，可实现对全局路径的更好跟踪。覆盖全局路径中局部路径点的朝向Some global planners are not considering the orientation at local subgoals between start and global goal, therefore determine it automatically 
+  # TODO
+  allow_init_with_backwards_motion: False #允许在开始时想后退来执行轨迹， 注意，teb_local_planner参数allow_init_with_backwards_motion需要设置为true，以便开始和当前中间目标之间的轨迹（例如，从采样独特拓扑中获得）也用向后方向初始化（仅在目标落后于开头时具有相似性） 方向）。If true, the underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (this is only recommended if the robot is equipped with rear sensors)
+  max_global_plan_lookahead_dist: 5.0 #考虑优化的全局计划子集的最大长度（累积欧几里得距离）（如果为0或负数：禁用；长度也受本地Costmap大小的限制） 这个大一些好 Specify maximum length (cumulative Euclidean distances) of the subset of the global plan taken into account for optimization [if 0 or negative: disabled; the length is also bounded by the local costmap size
+  #TODO
+  force_reinit_new_goal_dist: 0.265 #(double, default: 1.0) 如果上一个目标的间隔超过指定的米数（跳过热启动），则强制规划器重新初始化轨迹，Force the planner to reinitialize the trajectory if a previous goal is updated with a seperation of more than the specified value in meters (skip hot-starting),max=10,default=1
+  feasibility_check_no_poses: 5 #(int,default=5,max=50)每个采样间隔的姿态可行性分析数，检测位姿可到达的时间间隔，Specify up to which pose on the predicted plan the feasibility should be checked each sampling intervaldefault：4
+  exact_arc_length: True   #如果为真，规划器在速度、加速度和转弯率计算中使用精确的弧长[->增加的CPU时间]，否则使用欧几里德近似。If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations [-> increased cpu time], otherwise the euclidean approximation is used.
+  publish_feedback: True #(bool, default: false) 发布包含完整轨迹和动态障碍的列表的规划器反馈 
+# TODO
+#ViaPoints固定点
+  global_plan_viapoint_sep: 2.8  # (double, default: -0.1 (disabled)) 从全局规划路径中提取的路点的相互距离.默认设置下为Disable，即只沿全局规划向前寻找，找到的离开局部规划器规划范围前的最后一个点作为局部目标。若全局规划特殊，在无障碍空间仍不走直线（例如，工作中的扫地机器人），则需要将此值设置为设置为一个小的正数。.如果为正值，则通过点（via-points ）从全局计划（路径跟踪模式）展开，该值确定参考路径的分辨率（沿着全局计划的每两个连续通过点之间的最小间隔，可以参考参数weight_viapoint来调整大小) 从全局计划中提取的每两个连续通过点之间的最小间隔[如果为负：禁用]， Min. separation between each two consecutive via-points extracted from the global plan [if negative: disabled](min-0.1  default-0.1 max5.0)
+  global_plan_prune_distance: 2
+  via_points_ordered: true #如果为真，规划器遵循存储容器中通过点的顺序。If true, the planner adheres to the order of via-points in the storage container(default=false)

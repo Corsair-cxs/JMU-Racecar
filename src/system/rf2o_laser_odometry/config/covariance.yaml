@@ -1,0 +1,2 @@
+pose_covariance_diagonal: [0.1, 0.1, 0.1, 0.0025, 0.0025, 0.0025]
+twist_covariance_diagonal: [0.25, 0.25, 0.25, 0.02, 0.02, 0.02]

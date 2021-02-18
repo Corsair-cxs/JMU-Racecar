@@ -1,0 +1,31 @@
+<launch>
+
+	<arg name="use_gmapping" default="true"/>
+    <arg name="use_cartographer" default="false"/>
+    <arg name="use_particle_filter" default="false"/>
+
+
+    <include file="$(find jmu_racecar_gazebo)/launch/racecar.launch">
+        <arg name="world_name"       value="world_racetrack" doc="worlds: [world_empty, world_warehouse, world_racetrack, world_checkerboard, world_walker, world_tunnel, world_ar]"/>
+        <arg name="odom_name"       default="wheel_imu_odom" doc="odoms: [wheel_imu_odom, EKF_laser_imu_odom, UKF_laser_imu_odom, gazebo_odom, gazebo_module_odom, test_odom]"/>
+    </include>
+
+    <!-- <include file="$(find jmu_racecar_joystick)/launch/racecar_joystick.launch">
+    </include> -->
+
+    <include if="$(arg use_gmapping)" file="$(find jmu_racecar_mapping)/launch/gmapping.launch"/>
+
+    <include if="$(arg use_cartographer)" file="$(find jmu_racecar_mapping)/launch/cartographer.launch"/>
+   
+    <!-- <include if="$(arg use_particle_filter)" file="$(find particle_filter)/launch/localize.launch"/> -->
+
+    <!-- 运行rviz可视化界面 -->
+    <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen" args="-d $(find jmu_racecar_mapping)/rviz/racecar_navigation.rviz" required="true" />
+  
+<!-- 启动rviz
+    
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find racecar_navigation)/rviz/gmapping.rviz"/>
+
+ -->
+
+</launch>

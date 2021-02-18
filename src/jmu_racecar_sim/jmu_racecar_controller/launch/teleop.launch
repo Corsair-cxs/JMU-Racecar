@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<!-- -*- mode: XML -*- -->
+<launch>
+  <arg name="racecar_version" />
+  <arg name="joy_version" default = "1"/>
+  <arg name="joy_teleop_config"
+       default="$(find jmu_racecar_controller)/config/joy_teleop_$(arg joy_version).yaml" />
+
+  <rosparam file="$(arg joy_teleop_config)" command="load" />
+
+  <node pkg="joy" type="joy_node" name="joy_node" />
+
+  <node pkg="jmu_racecar_controller" type="joy_teleop.py" name="joy_teleop" output="screen" launch-prefix="gnome-terminal -e"/>
+
+</launch>

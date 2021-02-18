@@ -1,0 +1,7 @@
+image: /home/cxs/JMU-Racecar/src/jmu_racecar_mapping/maps/map_factory_cartographer.pgm
+resolution: 0.050000
+origin: [-3.341547, -23.595941, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

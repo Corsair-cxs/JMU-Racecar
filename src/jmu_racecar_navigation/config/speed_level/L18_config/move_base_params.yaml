@@ -1,0 +1,28 @@
+controller_frequency: 10.0 # 以Hz为单位的速率运行控制循环并向基座发送速度命令。向底盘控制移动话题cmd_vel发送命令的频率.(double, default: 20.0) The rate in Hz at which to run the control loop and send velocity commands to the base. 
+# controller_frequency: 10.0 如果这个参数被改了,teb中 dt_ref 以及 dt_hysteresis也相应的要被改
+
+planner_patience: 4.0     # 在空间清理操作执行前，路径规划器等待多长时间（秒）用来找出一个有效规划 (double, default: 5.0) How long the planner will wait in seconds in an attempt to find a valid plan before space-clearing operations are performed. 
+
+planner_frequency: 2.0  #(double, default: 0.0) 全局规划操作的执行频率.如果设置为0.0,则全局规划器仅在接收到新的目标点或者局部规划器报告路径堵塞时才会重新执行规划操作.The rate in Hz at which to run the global planning loop. If the frequency is set to 0.0, the global planner will only run when a new goal is received or the local planner reports that its path is blocked. New in navigation 1.6.0
+
+controller_patience: 5.0  # 在空间清理操作执行前，控制器会等待多长时间（秒）用来找出一个有效控制。(double, default: 15.0) How long the controller will wait in seconds without receiving a valid control before space-clearing operations are performed. 
+
+conservative_reset_dist: 5.0  # 当在地图中清理出空间时候，距离机器人几米远的障碍将会从costmap清除。(double, default: 3.0) The distance away from the robot in meters beyond which obstacles will be cleared from the costmap when attempting to clear space in the map. 
+# TODO Note, this parameter is only used when the default recovery behaviors are used for move_base. 
+
+recovery_behavior_enabled: true # 是否启用move_base修复机制来清理出空间(bool, default: true) Whether or not to enable the move_base recovery behaviors to attempt to clear out space. 
+
+clearing_rotation_allowed: false #决定做清理空间操作时候，机器人是否会采用原地旋转。 (bool, default: true) Determines whether or not the robot will attempt an in-place rotation when attempting to clear out space. Note: This parameter is only used when the default recovery behaviors are in use, meaning the user has not set the recovery_behaviors parameter to anything custom. 
+
+max_planning_retries: 2  #(int32_t, default: -1) How many times to allow for planning retries before executing recovery behaviors. A value of -1.0 corresponds to an infinite retries. 全局路径规划器loop速率。如果设置这个为0.0, 当收到新目标点或者局部路径规划器报告路径不通时候全局路径规划器才启动。New in navigation 1.6.0
+
+
+shutdown_costmaps: false # 当move_base在不活动状态时,是否关掉costmap.(bool, default: false) Determines whether or not to shutdown the costmaps of the node when move_base is in an inactive state 
+
+# oscillation 摇摆振动
+oscillation_timeout: 4.0 # 执行修复操作之前，允许的震荡时间是几秒。 值0意味着永不超时.(double, default: 0.0) How long in seconds to allow for oscillation before executing recovery behaviors. A value of 0.0 corresponds to an infinite timeout. New in navigation 1.3.1
+
+oscillation_distance: 0.5 # 来回运动在多大距离以上不会被认为是振荡.(double, default: 0.5) How far in meters the robot must move to be considered not to be oscillating. Moving this far resets the timer counting up to the ~oscillation_timeout New in navigation 1.3.1
+
+
+use_dijkstra: true

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="speed_level"       default="L18_config" doc="pid_values: [L05_config, L12_config, L18_config, L20_config, L22_config]"/>
+  <!--Launch the move base with time elastic band-->
+  <param name="/use_sim_time" value="true"/>
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find jmu_racecar_navigation)/config/speed_level//costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find jmu_racecar_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find jmu_racecar_navigation)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find jmu_racecar_navigation)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find jmu_racecar_navigation)/config/teb_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find jmu_racecar_navigation)/config/move_base_params.yaml" command="load" />
+
+    <param name="base_global_planner" value="global_planner/GlobalPlanner" />
+    <param name="planner_frequency" value="0.01" />
+    <param name="planner_patience" value="5.0" />
+    
+    <param name="use_dijkstra" value="true" />
+   
+
+    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="15.0" />
+
+    <param name="clearing_rotation_allowed" value="false" />
+  </node>
+
+ <!-- 
+ -->
+ 
+</launch>

@@ -1,0 +1,76 @@
+<launch>
+
+    <arg name="odom_name"       default="wheel_imu_odom" doc="odoms: [wheel_imu_odom, EKF_laser_imu_odom, UKF_laser_imu_odom, gazebo_odom, rf2o_odom, gazebo_module_odom,test_odom]"/>
+
+    <arg name="use_rf2o"                default="false"></arg>
+    <arg name="use_ekf"                default="false"></arg>
+
+    <arg name="use_amcl"                default="true"></arg>
+    <arg name="use_amcl_correct"        default="false"></arg>
+    <arg name="use_particle_filter"     default="false"></arg>
+
+    <arg name="use_dwa"     default="false"></arg>
+    <arg name="use_teb"     default="true"></arg>
+
+    <arg name="world_name"       value="world_racetrack" doc="worlds: [world_empty, world_warehouse, world_racetrack, world_checkerboard, world_walker, world_tunnel, world_ar, world_racetrack_cone_test1, world_racetrack_cone_test2, world_racetrack_cone_test3, world_racetrack_cone_test4,
+    world_racetrack_cone_test5, world_racetrack_cone_testA]"/>
+
+    <arg name="frame_id" default="map"/>
+
+    <arg name="pid_config_name"       default="L18_config" doc="pid_values: [L05_config, L12_config, L18_config, L20_config, L22_config]"/>
+
+    <!-- <arg name="map_file" default="map_racetrack_cartographer.yaml"/> -->
+    <arg name="map_file" default="map_runway_corrected_2.yaml"/>
+
+    <include file="$(find jmu_racecar_gazebo)/launch/racecar.launch">
+        <arg name="odom_name"        value="$(arg odom_name)" />
+        <arg name="world_name"        value="$(arg world_name)" />
+		<arg name="pid_config_name" value="$(arg pid_config_name)"/>
+    </include>
+
+    <include if="$(arg use_rf2o)" file="$(find jmu_racecar_localization)/launch/common/rf2o_odom.launch"/>
+    <include if="$(arg use_ekf)" file="$(find jmu_racecar_localization)/launch/common/laser_wheel_ekf_odom.launch"/>
+
+	<!-- 运行rviz可视化界面 -->
+    <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen" args="-d $(find jmu_racecar_navigation)/rviz/racecar_navigation.rviz" required="true">
+    </node>
+    <!--加载地图-->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(find jmu_racecar_mapping)/maps/$(arg map_file)">
+        <param name="frame_id" value="$(arg frame_id)"/>
+    </node>
+    
+    <include if="$(arg use_amcl)" file="$(find jmu_racecar_navigation)/launch/amcl_locate.launch">
+        <!-- <remap from="/odom" to="/racecar_wheel_imu_odometry/$(arg odom_name)"/> -->
+        <!-- <remap from="/odom" to="/racecar_wheel_imu_odometry/wheel_imu_odom"/> -->
+        <rosparam file="$(find jmu_racecar_navigation)/config/world_param/$(arg world_name).yaml" />
+        <arg name="scan_topic" default="/scan"/>
+        <arg name="odometry_topic" default="/racecar_wheel_imu_odometry/odom"/>
+        <!-- <arg name="odometry_topic" default="/rf2o_laser_odometry/odom"/> -->
+        
+        <param name="base_frame_id"             value="base_footprint"/>
+    </include>
+    <node if="$(arg use_amcl_correct)" name="jmu_odom_tf_correct" pkg="jmu_racecar_navigation" type="jmu_odom_tf" output="screen" launch-prefix="gnome-terminal -e">
+    </node>
+
+    <include if="$(arg use_particle_filter)" file="$(find jmu_racecar_navigation)/launch/particle_filter_localize.launch" launch-prefix="gnome-terminal -e">
+    </include>
+    <node if="$(arg use_particle_filter)" name="jmu_pf_odom_tf" pkg="jmu_racecar_navigation" type="jmu_pf_odom_tf" output="screen" launch-prefix="gnome-terminal -e">
+    </node>
+
+    <include if="$(arg use_teb)" file="$(find jmu_racecar_navigation)/launch/move_base.launch">
+		<arg name="speed_level" value="$(arg pid_config_name)"/>
+        <!-- /racecar_wheel_imu_odometry/wheel_imu_odom -->
+        <!-- <remap from="/odom" to="$(arg odom_topic_name)"/> -->
+    </include>
+
+    <include if="$(arg use_dwa)" file="$(find jmu_racecar_navigation)/launch/move_base_dwa.launch">
+        <!-- /racecar_wheel_imu_odometry/wheel_imu_odom -->
+        <!-- <remap from="/odom" to="$(arg odom_topic_name)"/> -->
+    </include>
+   
+    <!-- <node pkg="jmu_racecar_controller" name="cmd_vel_to_ackermann_drive" type="cmd_vel_to_ackermann_drive.py" output="screen" launch-prefix="gnome-terminal -e">
+        <remap from="ackermann_cmd" to="racecar/ackermann_cmd"/>
+    </node> -->
+<!-- 
+    <node pkg="jmu_racecar_navigation" name="path_pursuit" type="path_pursuit.py" output="screen" launch-prefix="gnome-terminal -e"></node>  -->
+</launch>

@@ -1,0 +1,24 @@
+local_costmap:
+  #TODO global_frame
+  global_frame: /odom
+  # global_frame: /odom
+  robot_base_frame: base_footprint
+
+  update_frequency: 20.0
+  publish_frequency: 10.0
+  # update_frequency: 20.0
+  # publish_frequency: 10.0
+  transform_tolerance: 0.5
+  
+  static_map: false
+  rolling_window: true
+  width: 10
+  height: 7
+  # width: 10
+  # height: 10
+  resolution: 0.1  # (double, default: 0.02) Map resolution (m/pixel)障碍物分辨率. 
+  # resolution: 0.25  # (double, default: 0.02) Map resolution (m/pixel). 
+  
+  plugins:
+   - {name: static_layer,        type: "costmap_2d::StaticLayer"}
+   - {name: obstacle_layer,      type: "costmap_2d::ObstacleLayer"}

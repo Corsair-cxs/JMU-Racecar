@@ -1,0 +1,94 @@
+<launch>
+	<!-- 
+
+	This launch file initializes particle filter localization.
+
+	arguments:
+		scan_topic - which ROS topic to listen for laser scan information
+		odom_topic - which ROS topic to listen for odometry information
+		max_particles - number of particles to maintain
+		angle_step    - laser scan ranges are downsampled by this factor
+		viz - whether or not to publish visualization topics.
+		      even if this is enabled, topics are not published unless there are subscribers
+		squash_factor - exponent used to "squash" the particle weights before normaliztation
+		                helps reduce problems associated with highly peaked prob. distributions
+
+	important parameters:
+		range_method: determines which RangeLibc algorithm to use. Options:
+			"bl": Bresenham's line. Slowest performance.
+			"rm": Ray Marching. Reasonably fast but suboptimal performance.
+			"rmgpu": GPU implementation of Ray Marching. Requires RangeLibc to be compiled WITH_CUDA=ON
+			"cddt": Compressed Directional Distance Transform. Compressed map representation. Fast query time.
+			"pcddt": Same as "cddt" but the data structure is pruned to remove unnecessary elements
+			"glt": Lookup table. Precomputes ray cast distances for a discretized state space. 
+			       Fast performance on the CPU but long initialization time.
+		max_range: maximum range of the laser scanner in meters. Measured ranges beyond max_range are clipped.
+		fine_timing: prints extra timing information, useful for profiling the particle filter
+		publish_odom: whether or not to publish inferred pose as an odometry message.
+		              publishes on /pf/pose/odom
+	 -->
+  <!-- known map server -->
+ 
+
+	
+  <arg name="scan_topic" default="/scan"/>
+  <!-- TODO gazebo_odom -->
+	<!-- <arg name="odometry_topic" default="/jmu_racecar_gazebo/odom"/> -->
+	<arg name="odometry_topic" default="/odom"/>
+	<!-- <arg name="odometry_topic" default="/odom"/> -->
+	<arg name="angle_step" default="18"/>
+	<arg name="max_particles" default="4000"/>
+	<arg name="squash_factor" default="2.2"/>
+	<arg name="viz" default="1"/>
+
+  <!-- amcl -->
+  <arg name="use_map_topic"  default="false"/>
+  <arg name="initial_pose_x" default="0.0"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
+  <node pkg="amcl" type="amcl" name="amcl">
+    <param name="use_map_topic"             value="$(arg use_map_topic)"/>
+    <param name="odom_model_type"           value="diff"/>
+    <param name="odom_alpha5"               value="0.1"/>
+
+    <!-- Publish scans from best pose at a max of 4 Hz -->
+    <param name="gui_publish_rate"          value="4.0"/>
+    <param name="laser_max_beams"           value="60"/>
+    <param name="laser_max_range"           value="8.0"/>
+    <param name="min_particles"             value="500"/>
+    <param name="max_particles"             value="3000"/>
+    <param name="kld_err"                   value="0.05"/>
+    <param name="kld_z"                     value="0.99"/>
+    <param name="odom_alpha1"               value="0.2"/>
+    <param name="odom_alpha2"               value="0.2"/>
+    <!-- translation std dev, m -->
+    <param name="odom_alpha3"               value="0.2"/>
+    <param name="odom_alpha4"               value="0.2"/>
+    <param name="laser_z_hit"               value="0.5"/>
+    <param name="laser_z_short"             value="0.05"/>
+    <param name="laser_z_max"               value="0.05"/>
+    <param name="laser_z_rand"              value="0.5"/>
+    <param name="laser_sigma_hit"           value="0.2"/>
+    <param name="laser_lambda_short"        value="0.1"/>
+    <param name="laser_model_type"          value="likelihood_field"/>
+    <!-- <param name="laser_model_type" value="beam"/> -->
+    <param name="laser_likelihood_max_dist" value="2.0"/>
+    <param name="update_min_d"              value="0.25"/>
+    <param name="update_min_a"              value="0.2"/>
+    <param name="odom_frame_id"             value="odom"/>
+
+    <!--TODO-->
+    <param name="base_frame_id"             value="base_footprint"/><!-- Used To be base_link-->
+
+    <param name="resample_interval"         value="1"/>
+    <!-- Increase tolerance because the computer can get quite busy -->
+    <param name="transform_tolerance"       value="1.0"/>
+    <param name="recovery_alpha_slow"       value="0.0"/>
+    <param name="recovery_alpha_fast"       value="0.0"/>
+    <param name="initial_pose_x"            value="$(arg initial_pose_x)"/>
+    <param name="initial_pose_y"            value="$(arg initial_pose_y)"/>
+    <param name="initial_pose_a"            value="$(arg initial_pose_a)"/>
+    <remap from="scan"                      to="$(arg scan_topic)"/>
+  </node>
+
+</launch>

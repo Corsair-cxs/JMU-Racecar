@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+import os
+
+# print("rosrun map_server map_saver"+" --occ "+str(occupied_thresh)+" --free "+str(free_thresh)+" -f "+map_path+map_name)
+os.system("echo ----------------------------------")
+os.system("echo md5sum racecar.urdf.xacro :")
+os.system("md5sum ~/JMU-Racecar/src/jmu_racecar_sim/jmu_racecar_description/urdf/racecar.urdf.xacro")
+os.system("echo ----------------------------------")
+os.system("echo md5sum camera.xacro :")
+os.system("md5sum ~/JMU-Racecar/src/jmu_racecar_sim/jmu_racecar_description/urdf/sensors/camera.xacro")
+os.system("echo ----------------------------------")
+os.system("echo md5sum imu.xacro :")
+os.system("md5sum ~/JMU-Racecar/src/jmu_racecar_sim/jmu_racecar_description/urdf/sensors/imu.xacro")
+os.system("echo ----------------------------------")
+os.system("echo md5sum lidar.xacro :")
+os.system("md5sum ~/JMU-Racecar/src/jmu_racecar_sim/jmu_racecar_description/urdf/sensors/lidar.xacro")
+os.system("echo ----------------------------------")
+os.system("echo md5sum urdf.xacro :")
+os.system("md5sum ~/JMU-Racecar/src/jmu_racecar_sim/jmu_racecar_gazebo/worlds/racetrack.world")
+os.system("echo ----------------------------------")

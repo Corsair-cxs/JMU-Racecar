@@ -1,0 +1,17 @@
+<launch>
+	
+  <param name="/use_sim_time" value="true"/>
+
+  <arg name="scan_topic" default="/scan"/>
+	<arg name="odometry_topic" default="/racecar_wheel_imu_odometry/odom"/>
+  
+  <!-- amcl -->
+  <arg name="use_map_topic"  default="false"/>
+  <arg name="initial_pose_x" default="-0.5"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
+  <node pkg="amcl" type="amcl" name="amcl">
+    <rosparam file="$(find jmu_racecar_navigation)/config/amcl_params.yaml" command="load" />
+  </node>
+
+</launch>

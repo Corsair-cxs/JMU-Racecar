@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+
+<launch>
+
+  <arg name="namespace"   default="racecar"/>
+  <arg name="cmd_timeout" default="0.5"/>
+  <arg name="use_controller"     default="true" />
+
+  <arg name="rectify"     default="false" />
+  <arg name="stereo_view" default="false" />
+
+  <arg name="pid_config_name"       default="L18_config" doc="pid_values: [L05_config, L12_config, L18_config, L22_config]"/>
+  
+  <group  if="$(arg use_controller)" ns="$(arg namespace)">
+     <!-- Load the joint controllers. One of these publishes the joint states to joint_states. -->
+
+     <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" 
+     args="$(find jmu_racecar_controller)/config/jmu_racecar_joint_ctrlr_params.yaml"/> -->
+
+     <rosparam file="$(find jmu_racecar_controller)/config/include/$(arg pid_config_name).yaml" command="load"/>
+     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="true" output="screen" args="$(find jmu_racecar_controller)/config/include/$(arg pid_config_name).yaml"/>
+
+
+     <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" >
+      <args value="$(find jmu_racecar_controller)/config/include/L1_config.yaml">
+      </args>
+    </node> -->
+
+    <!-- Control the steering, axle, and shock absorber joints. -->
+    <node name="ackermann_controller" pkg="jmu_racecar_controller"
+          type="ackermann_controller.py" respawn="true">
+      <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+      <rosparam file="$(find jmu_racecar_controller)/config/jmu_racecar_ackermann_ctrlr_params.yaml" command="load"/>
+    </node>  
+  </group>
+
+
+
+    <!-- if rectify is true... -->
+    <!-- launch stereo image proc pipeline for rectification -->
+    <group if="$(arg rectify)">
+      <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc" ns="stereo_camera" />
+      <node name="stereo_view" pkg="image_view" type="stereo_view" output="screen"
+            args="stereo:=stereo_camera image:=/image_rect_color" if="$(arg stereo_view)"/>
+    </group>
+
+</launch>

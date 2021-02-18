@@ -1,0 +1,5 @@
+<?xml version='1.0'?>
+<launch>
+  <arg name="odom_name"       default="test_odom" doc="odoms: [wheel_imu_odom, EKF_laser_imu_odom, UKF_laser_imu_odom, gazebo_odom, test_odom]"/>
+  <include file="$(find jmu_racecar_localization)/launch/common/$(arg odom_name).launch"/>
+</launch>

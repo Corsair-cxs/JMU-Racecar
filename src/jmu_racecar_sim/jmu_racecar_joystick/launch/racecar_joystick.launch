@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="speed_level_name"       default="L18_speed" doc="pid_values: [L05_speed, L12_speed, L18_speed, L20_speed, L22_speed]"/>
+ <!-- joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- Parameters -->
+  <param name="cmd_topic_vel" value="/racecar/ackermann_cmd" type="string"/>
+  <param name="cmd_service_io" value="modbus_io/write_digital_output" type="string"/>
+  
+  <rosparam command="load" file="$(find jmu_racecar_joystick)/config/include/$(arg speed_level_name).yaml"/>
+
+  <node name="racecar_joystick" pkg="jmu_racecar_joystick" type="racecar_joystick_node" output="screen"/>
+  
+</launch>

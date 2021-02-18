@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<launch>
+    <arg name="namespace"   default="racecar"/>
+    <arg name="cmd_timeout" default="0.5"/> 
+    <arg name="rectify"     default="false" />
+    <arg name="stereo_view" default="false" />
+    <include file="$(find jmu_racecar_localization)/launch/include/rf2o_laser_odometry.launch">
+        <!-- <remap from="/odom" to="/rf2o_laser_odometry/odom"/> -->
+        <!-- <remap from="/odom" to="/racecar_wheel_imu_odometry/wheel_imu_odom"/> -->
+        <remap from="/odom" to="/rf2o_laser_odometry/odom"/>
+    </include>
+        <!-- Robot_Localization -->
+    <!-- <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    </node> -->
+
+    <!-- <include file="$(find jmu_racecar_localization)/launch/include/ekf_nodes.launch"></include> -->
+    
+    <!-- <include file="$(find jmu_racecar_localization)/launch/include/robot_pose_ekf.launch"></include> -->
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+        <rosparam command="load" file="$(find jmu_racecar_localization)/config/ekf_params.yaml" />     
+    </node>
+</launch>

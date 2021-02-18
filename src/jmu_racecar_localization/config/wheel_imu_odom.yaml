@@ -1,0 +1,21 @@
+racecar_d_wheels: 0.335
+racecar_d_Hex: 0.365
+# racecar_d_wheels: 0.335
+# racecar_d_wheels: 0.140
+# racecar_wheel_diameter_: 0.2516
+# racecar_wheel_diameter_: 0.249249
+# racecar_wheel_diameter_: 0.232544
+# 计算得到平均值0.25285
+# racecar_wheel_diameter_: 0.25285
+racecar_wheel_diameter_: 0.14605
+# 0.14605
+# 0.116272
+# racecar_wheel_diameter_: 0.5
+model: racecar
+publish_odom_tf: true
+
+# right_rear_wheel: x=-0.167500  ; y=-0.152499 ; z=0.126078
+# right_front_wheel: x=0.167500  ; y=-0.152498 ; z=0.126153
+# 
+# 
+# 

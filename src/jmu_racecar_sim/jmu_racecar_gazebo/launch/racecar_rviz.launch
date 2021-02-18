@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <include file="$(find jmu_racecar_gazebo)/launch/racecar.launch"></include>
+
+    <!--arg name="rviz_name" default="racecar_urdf" /-->
+    <arg name="rviz_name" default="racecar_navigation" />
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="-d $(find jmu_racecar_gazebo)/rviz/$(arg rviz_name).rviz" required="true"/>
+          
+</launch>

@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<launch>
+    <arg name="namespace"   default="racecar"/>
+    <arg name="cmd_timeout" default="0.5"/> 
+    <arg name="rectify"     default="false" />
+    <arg name="stereo_view" default="false" />
+    <include file="$(find jmu_racecar_localization)/launch/include/rf2o_laser_odometry.launch">
+        <!-- <remap from="/odom" to="/rf2o_laser_odometry/odom"/> -->
+        <!-- <remap from="/odom" to="/racecar_wheel_imu_odometry/wheel_imu_odom"/> -->
+        <remap from="/odom" to="/rf2o_laser_odometry/odom"/>
+    </include>
+
+</launch>

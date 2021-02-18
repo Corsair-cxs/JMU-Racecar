@@ -1,0 +1,53 @@
+num_of_buttons: 15 
+num_of_axes: 8
+desired_freq: 50.0
+
+topic_state: "/racecar__joystick/state"
+topic_joy: "/joy"
+cmd_topic_vel: "/racecar/ackermann_cmd"
+
+#TODO Buttons
+button_dead_man: 11
+button_speed_up: 4
+button_speed_down: 1
+
+#TODO axis
+# 设置线速度和角速度的连杆号码
+axis_linear_speed: 1
+axis_angular_position: 2
+
+# 线速度和角速度初始值
+max_angular_position: 0.5   #0.5 red/s
+max_linear_speed_: 12.0 #1.2 m/s
+
+# axis_linear_x: 1
+# axis_linear_y: 0
+# axis_linear_z: 3
+# axis_angular: 2
+# scale_linear_x: 15.0
+# scale_linear_y: 15.0
+# scale_linear_z: 15.0
+# scale_angular: 15.0
+# button_output_1: 15
+# button_output_2: 13
+# output_1: 0
+# output_2: 2
+# button_ptz_tilt_up: 4
+# button_ptz_tilt_down: 6
+# button_ptz_pan_right: 5
+# button_ptz_pan_left: 7
+# button_kinematic_mode: 9
+# tilt_increment: 5
+# pan_increment: 5
+
+# TODO Tumb
+# output_1
+# output_2
+# cmd_service_ptz: 
+# button_ptz_tilt_up
+# button_ptz_tilt_down
+# button_ptz_pan_right
+# button_ptz_pan_left
+# button_kinematic_mode
+# cmd_service_set_mode
+#TODO

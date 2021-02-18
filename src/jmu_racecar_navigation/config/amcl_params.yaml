@@ -1,0 +1,59 @@
+use_map_topic: true
+
+min_particles: 500      #（int，默认值：100）最小允许的颗粒数。
+max_particles: 2000     #（int，default：5000）允许的最大粒子数。
+kld_err: 0.05           # 真实分布和估计分布之间的最大误差。
+kld_z: 0.99             #1-p）的上标准正常分位数，其中p是估计的失谐上的误差将小于kld_err的概率。
+update_min_d: 0.005      #执行过滤器更新之前需要执行旋转运动。（double，默认值：0.2米） 
+update_min_a: 0.005       #（double，default：π/ 6.0 radians）执行过滤器更新之前需要执行旋转运动。
+resample_interval: 2    #重新采样之前所需的过滤器更新数。
+## Increase tolerance because the computer can get quite busy 
+transform_tolerance: 0.1        # 将发布的变换后期化的时间，以指示此变换在未来有效。（double，默认为0.1秒）
+recovery_alpha_slow: 0.001      #慢平均权重滤波器的指数衰减率，用于决定何时通过添加随机姿态来恢复。良好的值可能为0.001。
+recovery_alpha_fast: 0.1       #快速平均权重滤波器的指数衰减率，用于决定何时通过添加随机姿态来恢复。好的值可能为0.1。
+gui_publish_rate: 10.0          #（double，默认值：-1.0 Hz）发布可视化扫描和路径的最大速率（Hz），禁用-1.0。
+
+scan_topic: "/scan"
+laser_max_range: -1.0  #Laser Range
+laser_min_range: -1.0  #Laser Range
+laser_max_beams: 180            # 在更新过滤器时要在每次扫描中使用多少均匀间隔的光束。
+laser_z_hit: 1.0               # 模型的z_hit部分的混合重量。（double，默认值：0.95） 
+laser_z_short: 0.0025             # 模型的z_short部分的混合重量。（double，默认值：0.1） 
+laser_z_max: 0.05               # 模型的z_max部分的混合物重量。（double，默认值：0.05） 
+laser_z_rand: 0.05    #z_rand部分的权重，默认0.05。随机噪声的权重。（如声呐的多次反射，传感器串扰）
+laser_sigma_hit: 0.2  #用在模型的z_hit部分的高斯模型的标准差，默认0.2m
+laser_lambda_short: 0.1         #（double，default：0.1）模型的z_short部分的指数衰减参数。
+laser_likelihood_max_dist: 8.0  #（double，默认：2.0米）在地图上做障碍物充气的最大距离，用于likelihood_field模型。
+laser_model_type: "likelihood_field" # "likelihood_field" or "beam"
+#光束模型使用所有4：Z_HIT、z_Short、z_max和z_rand。似然场模型只使用2：Z_HIT和z_rand。使用中的权重和应等于1。其中beam实现的是波束模型， likelihood_field则是似然场模型，likelihood_field_prob也是似然场模型， 只是增加了波束过滤的策略。
+
+# dist —— laser_likelihood_max_dist
+# σ —— laser_sigma_hit
+# prob为laser_likelihood_max_dist为中心标准方差为σ（laser_sigma_hit）的高斯分布的距离概率）
+# 那么观测到z的概率 p = laser_z_hit * prob(dist, σ) + laser_z_rand * p_rand;
+
+
+## Publish scans from best pose at a max of 10 Hz
+odom_model_type: "diff-corrected"
+        #       typedef enum {
+        #     ODOM_MODEL_DIFF,
+        #     ODOM_MODEL_OMNI,
+        #     ODOM_MODEL_DIFF_CORRECTED,
+        #     ODOM_MODEL_OMNI_CORRECTED
+        # } odom_model_t;
+        #其中diff是按照《P.R.》中的sample_motion_model_odometry算法来实现的， 使用odom_alpha1到odom_alpha4来描述噪声。omni则是在diff基础上增加了一个参数odom_alpha5来描述垂直与运动方向的平移趋势。而diff-corrected和omni-corrected则是为了修复diff和omni模型中的bug而设计的， 它们在本质上没有大的区别。差速模型的里程记计算中需要对机器人进行噪音估计，因为我们读到的直很可能不是真值。程计是作为状态预测器存在的，通过接受当前的控制信号，从上一帧机器人状态对这一帧机器人状态进行预测，并与当前观测所得结果对当前预测进行加权打分。所以通过输入和输出我们知道，里程计在AMCL中的作用就是根据当前控制信号更新上一帧的能表征机器人状态的粒子集合。
+odom_alpha1: 0.01  # 机器人旋转分量中的旋转噪音 0.1
+odom_alpha2: 0.01  # 机器人平移分量中的旋转噪音 0.1
+## translation std dev, m 
+odom_alpha3: 0.18  # 机器人平移分量中的平移噪音 0.2
+odom_alpha4: 0.36  # 机器人旋转分量中的平移噪音 0.2
+odom_alpha5: 0.1
+odom_frame_id: "odom"           # 机器人底盘坐标系
+base_frame_id: "base_footprint" #机器人底盘坐标系
+global_frame_id: "map"          #定位系统的参考坐标系
+
+initial_cov_xx: 0.01             #double，默认值：0.5 * 0.5米）初始姿态协方差（x * x），用于初始化具有高斯分布的滤波器。
+initial_cov_yy: 0.01             #（double，默认值：0.5 * 0.5米）初始姿态协方差（y * y），用于初始化具有高斯分布的滤波器。
+initial_cov_aa: 0.0             #（double，默认值：（π/ 12）*（π/ 12）弧度）初始姿态协方差（yaw * yaw），用于初始化具有高斯分布的滤波器。
+
+

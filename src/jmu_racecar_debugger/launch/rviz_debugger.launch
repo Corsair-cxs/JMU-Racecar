@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <!--arg name="rviz_name" default="racecar_urdf" /-->
+    <arg name="rviz_name" default="racecar" />
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="-d $(find jmu_racecar_debugger)/rviz/$(arg rviz_name).rviz" required="true"/>
+          
+</launch>

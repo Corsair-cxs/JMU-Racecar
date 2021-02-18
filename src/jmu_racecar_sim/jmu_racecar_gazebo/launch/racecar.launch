@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="namespace"   default="racecar"/>
+	    <!-- 设置launch文件的参数 -->
+
+	<arg name="world_name"       default="world_empty" doc="worlds: [world_empty, world_warehouse, world_racetrack, world_checkerboard, world_walker, world_tunnel, world_ar]"/>
+
+	<arg name="odom_name"       default="wheel_imu_odom" doc="odoms: [wheel_imu_odom, EKF_laser_imu_odom, UKF_laser_imu_odom, gazebo_odom, gazebo_module_odom, test_odom]"/>
+	<arg name="use_gazebo_module" default="true"/>
+	
+
+	<arg name="pid_config_name"       default="L18_config" doc="pid_values: [L05_config, L12_config, L18_config, L22_config]"/>
+
+	<!-- 使用调试器 -->
+	<arg name="use_debugger" default="true"/>
+	<!-- 使用键盘控制 -->
+	<arg name="use_stdr_control" default="true"/>
+	<!-- 使用控制器 -->
+	<arg name="use_controller"     default="true" />
+	<!-- 发布里程计数据 -->
+	<arg name="use_odom"     default="true" />
+	<arg name="correct_odom"     default="true" />
+	<!-- 发布滤波后雷达状态 -->
+	<arg name="use_filtered_laser"     default="true" />
+	
+	<!-- 加载机器人模型描述参数 -->
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find jmu_racecar_description)/urdf/racecar.urdf.xacro'"/>
+	<!-- 机器人关节状态发布 -->
+	<node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui"
+		type="joint_state_publisher_gui">
+		<param name="rate" value="30"/>
+		<param name="use_gui" value="true"/>
+		<!-- TODO -->
+		<!-- <remap from="joint_states" to="/racecar/joint_states"/> -->
+	</node>
+	<!-- 机器人状态发布,发布tf -->
+	<node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher">
+		<param name="publish_frequency" type="double" value="20.0" />
+		<!-- TODO -->
+		<remap from="joint_states" to="/racecar/joint_states"/>
+	</node>
+	<!-- 加载机器人和环境信息 -->
+	<include file="$(find jmu_racecar_gazebo)/launch/world_set/$(arg world_name).launch"/>
+	<!-- 使用控制器 -->
+	<include if="$(arg use_controller)" file="$(find jmu_racecar_controller)/launch/racecar_controller.launch">
+		<arg name="pid_config_name" value="$(arg pid_config_name)"/>
+	</include>
+	<!-- 使用里程计 -->
+	<include if="$(arg use_odom)" file="$(find jmu_racecar_localization)/launch/racecar_odom.launch">
+		<arg name="odom_name" value="$(arg odom_name)"/>
+	</include>
+
+	<!-- <include if="$(arg correct_odom)" file="$(find jmu_racecar_localization)/launch/common/gazebo_module_odom.launch"/> -->
+	
+	<!-- 使用调试器 -->
+	<include if="$(arg use_debugger)" file="$(find jmu_racecar_debugger)/launch/rqt_debugger.launch"/>
+
+	<!-- <node if="$(arg use_stdr_control)" pkg="jmu_racecar_control" name="stdr_teleop_control" type="stdr_full_teleop_control.py" output="screen" launch-prefix="gnome-terminal -e"/> -->
+	
+	<!-- 使用滤波后的雷达 -->
+	<!-- <include if="$(arg use_filtered_laser)" file="$(find jmu_racecar_description)/launch/my_laser_filter.launch"/> -->
+
+<!-- launch camera calibrator if checkerboard world is selected 
+	<include if="$(eval world=='checkerboard')" file="$(find ackermann_vehicle_gazebo)/launch/stereo_camera_calibration.launch" />
+-->
+	<group ns="$(arg namespace)">
+	</group>		
+
+</launch>
